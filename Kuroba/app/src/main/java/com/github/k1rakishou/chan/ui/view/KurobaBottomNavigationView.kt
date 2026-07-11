@@ -39,6 +39,8 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
 
   @Inject
   lateinit var globalUiStateHolder: GlobalUiStateHolder
+  @Inject
+  lateinit var kurobaSettings: com.github.k1rakishou.v2.KurobaSettings
 
   private var attachedToWindow = false
   private var attachedToToolbar = false
@@ -56,7 +58,9 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
       context = context,
       orientation = KurobaComposeIconPanel.Orientation.Horizontal,
       defaultSelectedMenuItemId = R.id.action_search,
-      menuItems = bottomNavViewButtons()
+      menuItems = bottomNavViewButtons(
+        kurobaSettings.internal.reorderableBottomNavViewButtons.readBlocking()
+      )
     )
   }
 
@@ -335,10 +339,10 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
       return ChanSettings.isNavigationViewEnabled()
     }
 
-    fun bottomNavViewButtons(): List<KurobaComposeIconPanel.MenuItem> {
-      val bottomNavViewButtons = ReorderableBottomNavViewButtons()
-
-      return bottomNavViewButtons.bottomNavViewButtons().map { bottomNavViewButton ->
+    fun bottomNavViewButtons(
+      reorderable: ReorderableBottomNavViewButtons = ReorderableBottomNavViewButtons()
+    ): List<KurobaComposeIconPanel.MenuItem> {
+      return reorderable.bottomNavViewButtons().map { bottomNavViewButton ->
         return@map when (bottomNavViewButton) {
           BottomNavViewButton.Search -> {
             KurobaComposeIconPanel.MenuItem(
