@@ -100,6 +100,15 @@ class AppearanceSettingsScreenBuilder(
       )
 
       addSetting(
+        SettingUiElement.Bool(
+          title = { appResources.string(R.string.setting_bottom_navigation_view_enabled) },
+          description = { appResources.string(R.string.setting_bottom_navigation_view_enabled_description) },
+          setting = kurobaSettings.application.bottomNavigationViewEnabled,
+          requiresAppRestart = true
+        )
+      )
+
+      addSetting(
         SettingUiElement.Link(
           composeKey = "ReorderableBottomNavViewButtonsSetting",
           title = { appResources.string(R.string.setting_reorder_bottom_nav_view_buttons) },

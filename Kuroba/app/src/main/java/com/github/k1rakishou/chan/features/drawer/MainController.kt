@@ -58,11 +58,16 @@ import com.github.k1rakishou.chan.ui.globalstate.toolbar.ToolbarBadgeGlobalState
 import com.github.k1rakishou.chan.ui.theme.widget.TouchBlockingFrameLayout
 import com.github.k1rakishou.chan.ui.theme.widget.TouchBlockingFrameLayoutNoBackground
 import com.github.k1rakishou.chan.ui.theme.widget.TouchBlockingLinearLayoutNoBackground
+import com.github.k1rakishou.chan.ui.view.KurobaBottomNavigationView
+import com.github.k1rakishou.chan.ui.view.NavigationViewContract
 import com.github.k1rakishou.chan.ui.view.floating_menu.CheckableFloatingListMenuItem
 import com.github.k1rakishou.chan.ui.view.floating_menu.FloatingListMenuItem
 import com.github.k1rakishou.chan.ui.viewstate.DrawerEnableState
 import com.github.k1rakishou.chan.utils.AppModuleAndroidUtils
+import com.github.k1rakishou.chan.utils.AppModuleAndroidUtils.getDimen
 import com.github.k1rakishou.chan.utils.AppModuleAndroidUtils.inflate
+import com.github.k1rakishou.deprecated.ChanSettingsDeprecated
+import androidx.core.view.updatePadding
 import com.github.k1rakishou.chan.utils.TimeUtils
 import com.github.k1rakishou.chan.utils.findControllerOrNull
 import com.github.k1rakishou.chan.utils.viewModelByKey
@@ -130,6 +135,7 @@ class MainController(
   private lateinit var drawerLayout: DrawerLayout
   private lateinit var drawer: TouchBlockingLinearLayoutNoBackground
   private lateinit var snackbarContainerView: SnackbarContainerView
+  private var restoredBottomNavigationView: NavigationViewContract? = null
 
   private val _latestDrawerEnableState = MutableStateFlow<DrawerEnableState?>(null)
 
@@ -205,6 +211,8 @@ class MainController(
     snackbarContainerView.init(SnackbarScope.Global())
 
     drawerLayout.addDrawerListener(this)
+
+    setupRestoredBottomNavigationBar()
 
     val drawerComposeView = view.findViewById<ComposeView>(R.id.drawer_compose_view)
     drawerComposeView.setContent {
@@ -304,6 +312,7 @@ class MainController(
 
   override fun onThemeChanged() {
     mainControllerViewModel.onThemeChanged()
+    restoredBottomNavigationView?.onThemeChanged(themeEngine.chanTheme)
   }
 
   override fun onDestroy() {
@@ -672,6 +681,35 @@ class MainController(
       com.github.k1rakishou.chan.R.id.action_bookmarks -> openBookmarksController(emptyList())
       com.github.k1rakishou.chan.R.id.action_settings -> openSettingsController()
     }
+  }
+
+  private fun setupRestoredBottomNavigationBar() {
+    val navView = view.findViewById<KurobaBottomNavigationView>(
+      com.github.k1rakishou.chan.R.id.navigation_view
+    ) ?: return
+
+    val enabled = kurobaSettings.application.bottomNavigationViewEnabled.readBlocking()
+      && !ChanSettingsDeprecated.isSplitLayoutMode()
+    if (!enabled) {
+      navView.visibility = View.GONE
+      restoredBottomNavigationView = null
+      return
+    }
+
+    restoredBottomNavigationView = navView
+    navView.visibility = View.VISIBLE
+
+    navView.setOnNavigationItemSelectedListener { menuItemId ->
+      if (navView.selectedMenuItemId != menuItemId) {
+        onNavigationItemSelectedListener(menuItemId)
+      }
+      true
+    }
+
+    navView.onThemeChanged(themeEngine.chanTheme)
+
+    val navHeight = getDimen(com.github.k1rakishou.chan.R.dimen.navigation_view_size)
+    container.updatePadding(bottom = navHeight)
   }
 
   private fun onSwitchDayNightThemeIconClick() {

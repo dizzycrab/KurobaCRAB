@@ -29,6 +29,9 @@ class ApplicationSettings(
   val watchEnabled by lazy {
     createBooleanSetting(KurobaSettingKey.Application.WatchEnabled, false)
   }
+  val bottomNavigationViewEnabled by lazy {
+    createBooleanSetting(KurobaSettingKey.Application.BottomNavigationViewEnabled, true)
+  }
   val watchBackground by lazy {
     createBooleanSetting(KurobaSettingKey.Application.WatchBackground, false)
   }

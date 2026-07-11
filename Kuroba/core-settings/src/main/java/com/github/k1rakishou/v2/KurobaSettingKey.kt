@@ -25,6 +25,7 @@ sealed class KurobaSettingKey(val raw: String) {
     data object IsCurrentThemeDark : Application("IsCurrentThemeDark")
 
     data object LayoutMode : Application("LayoutMode")
+    data object BottomNavigationViewEnabled : Application("BottomNavigationViewEnabled")
     data object CatalogSpanCount : Application("CatalogSpanCount")
     data object AlbumSpanCount : Application("AlbumSpanCount")
     data object ShowThreadPage : Application("ShowThreadPage")

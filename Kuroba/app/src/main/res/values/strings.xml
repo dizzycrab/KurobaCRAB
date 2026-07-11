@@ -707,6 +707,8 @@ Usually that means that you forgot to remove a space from the beginning or the e
     <string name="setting_post_thumbnail_scaling">Post thumbnail scaling type</string>
     <string name="setting_post_thumbnail_scaling_fit_center">Fit center</string>
     <string name="setting_post_thumbnail_scaling_center_crop">Center crop</string>
+    <string name="setting_bottom_navigation_view_enabled">Show bottom navigation bar</string>
+    <string name="setting_bottom_navigation_view_enabled_description">Restores the pre-v1.3.34 bottom bar. Requires an app restart.</string>
     <string name="setting_reorder_bottom_nav_view_buttons">Reorder bottom navigation view buttons</string>
 
     <!-- Appearance post group -->
