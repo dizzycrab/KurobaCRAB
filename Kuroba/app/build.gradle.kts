@@ -66,8 +66,10 @@ android {
               manifestPlaceholders["iconLoc"] = "@mipmap/ic_launcher_beta"
           }
           KurobaBuildType.Dev -> {
-              manifestPlaceholders["appName"] = "KurobaEx-dev"
+              applicationIdSuffix = ".bottomnav"
+              manifestPlaceholders["appName"] = "KurobaEx-BottomNav"
               manifestPlaceholders["iconLoc"] = "@mipmap/ic_launcher_dev"
+              manifestPlaceholders["fileProviderAuthority"] = "com.github.k1rakishou.chan.bottomnav.fileprovider"
           }
         }
 
