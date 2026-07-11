@@ -709,6 +709,21 @@ class MainController(
     navView.onThemeChanged(themeEngine.chanTheme)
 
     val navHeight = getDimen(com.github.k1rakishou.chan.R.dimen.navigation_view_size)
+
+    // Push the bar and content above the system nav (gesture pill / 3-button bar).
+    androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(navView) { _, insets ->
+      val systemBottom = insets.getInsets(
+        androidx.core.view.WindowInsetsCompat.Type.systemBars() or
+          androidx.core.view.WindowInsetsCompat.Type.displayCutout()
+      ).bottom
+      navView.layoutParams = navView.layoutParams.also { it.height = navHeight + systemBottom }
+      navView.updatePaddings(leftPadding = null, bottomPadding = systemBottom)
+      container.updatePadding(bottom = navHeight + systemBottom)
+      insets
+    }
+    navView.requestApplyInsets()
+
+    // Fallback in case insets never fire before first frame.
     container.updatePadding(bottom = navHeight)
   }
 
