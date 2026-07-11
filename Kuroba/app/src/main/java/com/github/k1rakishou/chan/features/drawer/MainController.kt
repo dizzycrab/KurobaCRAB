@@ -25,6 +25,7 @@ import com.github.k1rakishou.chan.core.helper.AppRestarter
 import com.github.k1rakishou.chan.core.helper.StartActivityStartupHandlerHelper
 import com.github.k1rakishou.chan.core.helper.migration.app.ApplicationMigrationHelper
 import com.github.k1rakishou.chan.core.manager.BookmarksManager
+import com.github.k1rakishou.chan.core.manager.GlobalWindowInsetsManager
 import com.github.k1rakishou.chan.core.manager.HistoryNavigationManager
 import com.github.k1rakishou.chan.core.manager.SettingsNotificationManager
 import com.github.k1rakishou.chan.core.manager.ThreadDownloadManager
@@ -111,6 +112,8 @@ class MainController(
   lateinit var threadDownloadManagerLazy: Lazy<ThreadDownloadManager>
   @Inject
   lateinit var applicationMigrationHelper: ApplicationMigrationHelper
+  @Inject
+  lateinit var globalWindowInsetsManager: GlobalWindowInsetsManager
   @Inject
   lateinit var appRestarter: AppRestarter
 
@@ -710,21 +713,22 @@ class MainController(
 
     val navHeight = getDimen(com.github.k1rakishou.chan.R.dimen.navigation_view_size)
 
-    // Push the bar and content above the system nav (gesture pill / 3-button bar).
-    androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(navView) { _, insets ->
-      val systemBottom = insets.getInsets(
-        androidx.core.view.WindowInsetsCompat.Type.systemBars() or
-          androidx.core.view.WindowInsetsCompat.Type.displayCutout()
-      ).bottom
+    // Push the bar and content above the system nav area (gesture pill / 3-button bar).
+    // The controller_main.xml root uses fitsSystemWindows="true", which consumes raw
+    // window insets before children see them — so we read via the app's central
+    // GlobalWindowInsetsManager, which the rest of the codebase already keeps in sync.
+    fun applyBarInsets() {
+      val systemBottom = globalWindowInsetsManager.bottom()
       navView.layoutParams = navView.layoutParams.also { it.height = navHeight + systemBottom }
       navView.updatePaddings(leftPadding = null, bottomPadding = systemBottom)
       container.updatePadding(bottom = navHeight + systemBottom)
-      insets
     }
-    navView.requestApplyInsets()
-
-    // Fallback in case insets never fire before first frame.
-    container.updatePadding(bottom = navHeight)
+    applyBarInsets()
+    globalWindowInsetsManager.addInsetsUpdatesListener(
+      object : com.github.k1rakishou.chan.core.manager.WindowInsetsListener {
+        override fun onInsetsChanged() = applyBarInsets()
+      }
+    )
   }
 
   private fun onSwitchDayNightThemeIconClick() {
