@@ -35,7 +35,7 @@ class BottomNavBarAwareNavigationController(
 
   private lateinit var toolbar: KurobaToolbarView
 
-  override fun injectDependencies(component: ActivityComponent) {
+  override fun injectActivityDependencies(component: ActivityComponent) {
     component.inject(this)
   }
 

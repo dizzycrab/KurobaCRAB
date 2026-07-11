@@ -21,7 +21,7 @@ class KurobaNavigationRailView @JvmOverloads constructor(
     KurobaComposeIconPanel(
       context = context,
       orientation = KurobaComposeIconPanel.Orientation.Vertical,
-      defaultSelectedMenuItemId = R.id.action_browse,
+      defaultSelectedMenuItemId = R.id.action_search,
       menuItems = KurobaBottomNavigationView.bottomNavViewButtons()
     )
   }

@@ -93,7 +93,10 @@ import com.github.k1rakishou.chan.ui.cell.ThreadStatusCell
 import com.github.k1rakishou.chan.ui.cell.post_thumbnail.PostImageThumbnailView
 import com.github.k1rakishou.chan.ui.cell.post_thumbnail.PostImageThumbnailViewWrapper
 import com.github.k1rakishou.chan.ui.compose.ThreadSearchNavigationButtonsView
+import com.github.k1rakishou.chan.ui.compose.bottom_panel.KurobaComposeIconPanel
 import com.github.k1rakishou.chan.ui.compose.lazylist.ScrollbarView
+import com.github.k1rakishou.chan.ui.controller.navigation.BottomNavBarAwareNavigationController
+import com.github.k1rakishou.chan.ui.view.KurobaBottomNavigationView
 import com.github.k1rakishou.chan.ui.controller.BrowseController
 import com.github.k1rakishou.chan.ui.controller.CaptchaContainerController
 import com.github.k1rakishou.chan.ui.controller.FloatingListMenuController
@@ -205,6 +208,9 @@ interface ActivityComponent : ActivityDependencies {
   fun inject(webViewReportController: WebViewReportController)
   fun inject(sitesSetupController: SitesSetupController)
   fun inject(splitNavigationController: SplitNavigationController)
+  fun inject(bottomNavBarAwareNavigationController: BottomNavBarAwareNavigationController)
+  fun inject(kurobaBottomNavigationView: KurobaBottomNavigationView)
+  fun inject(kurobaComposeIconPanel: KurobaComposeIconPanel)
   fun inject(styledToolbarNavigationController: StyledToolbarNavigationController)
   fun inject(themeSettingsController: ThemeSettingsController)
   fun inject(themeGalleryController: ThemeGalleryController)

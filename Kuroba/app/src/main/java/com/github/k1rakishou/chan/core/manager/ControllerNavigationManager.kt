@@ -3,67 +3,59 @@ package com.github.k1rakishou.chan.core.manager
 import com.github.k1rakishou.chan.ui.controller.base.Controller
 import com.github.k1rakishou.chan.utils.BackgroundUtils
 import com.github.k1rakishou.core_logger.Logger
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.processors.PublishProcessor
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class ControllerNavigationManager {
-  private val controllerNavigationSubject = PublishProcessor.create<ControllerNavigationChange>()
+  private val _controllerNavigationFlow = MutableSharedFlow<ControllerNavigationChange>(
+    extraBufferCapacity = 64
+  )
 
-  fun listenForControllerNavigationChanges(): Flowable<ControllerNavigationChange> {
+  fun listenForControllerNavigationChanges(): SharedFlow<ControllerNavigationChange> {
     BackgroundUtils.ensureMainThread()
-
-    return controllerNavigationSubject
-      .observeOn(AndroidSchedulers.mainThread())
-      .hide()
+    return _controllerNavigationFlow.asSharedFlow()
   }
 
   fun onControllerPushed(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerPushed(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.Pushed(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.Pushed(controller))
   }
 
   fun onControllerPopped(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerPopped(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.Popped(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.Popped(controller))
   }
 
   fun onControllerPresented(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerPresented(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.Presented(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.Presented(controller))
   }
 
   fun onControllerUnpresented(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerUnpresented(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.Unpresented(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.Unpresented(controller))
   }
 
   fun onControllerSwipedTo(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerSwipedTo(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.SwipedTo(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.SwipedTo(controller))
   }
 
   fun onControllerSwipedFrom(controller: Controller) {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onControllerSwipedFrom(${controller.javaClass.simpleName})")
-
-    controllerNavigationSubject.onNext(ControllerNavigationChange.SwipedFrom(controller))
+    _controllerNavigationFlow.tryEmit(ControllerNavigationChange.SwipedFrom(controller))
   }
 
   fun onCloseAllNonMainControllers() {
     BackgroundUtils.ensureMainThread()
     Logger.d(TAG, "onCloseAllNonMainControllers()")
-
     // Do nothing here, other than logging
   }
 
@@ -75,7 +67,6 @@ class ControllerNavigationManager {
     class SwipedTo(controller: Controller) : ControllerNavigationChange(controller)
     class SwipedFrom(controller: Controller) : ControllerNavigationChange(controller)
 
-
     override fun toString(): String {
       return "CNC{${javaClass.simpleName}, controller=${controller.javaClass.simpleName}}"
     }
@@ -84,5 +75,4 @@ class ControllerNavigationManager {
   companion object {
     private const val TAG = "ControllerNavigationManager"
   }
-
 }

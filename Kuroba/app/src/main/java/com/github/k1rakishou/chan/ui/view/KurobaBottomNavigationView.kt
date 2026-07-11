@@ -10,11 +10,12 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.ComposeView
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.github.k1rakishou.deprecated.ChanSettingsDeprecated as ChanSettings
+import com.github.k1rakishou.v2.parameters.ReorderableBottomNavViewButtons
 import com.github.k1rakishou.v2.parameters.ReorderableBottomNavViewButtons.BottomNavViewButton
 import com.github.k1rakishou.chan.R
 import com.github.k1rakishou.chan.core.concurrency.KurobaCoroutineScope
-import com.github.k1rakishou.chan.features.toolbar.KurobaToolbarView
 import com.github.k1rakishou.chan.ui.compose.bottom_panel.KurobaComposeIconPanel
 import com.github.k1rakishou.chan.ui.globalstate.GlobalUiStateHolder
 import com.github.k1rakishou.chan.ui.view.widget.SimpleAnimatorListener
@@ -22,11 +23,13 @@ import com.github.k1rakishou.chan.utils.AppModuleAndroidUtils
 import com.github.k1rakishou.chan.utils.setAlphaFast
 import com.github.k1rakishou.common.updatePaddings
 import com.github.k1rakishou.core_themes.ChanTheme
-import com.github.k1rakishou.persist_state.PersistableChanState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private val ToolbarAnimationInterpolator = FastOutSlowInInterpolator()
+private const val ToolbarAnimationDurationMs = 250L
 
 class KurobaBottomNavigationView @JvmOverloads constructor(
   context: Context,
@@ -52,7 +55,7 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
     KurobaComposeIconPanel(
       context = context,
       orientation = KurobaComposeIconPanel.Orientation.Horizontal,
-      defaultSelectedMenuItemId = R.id.action_browse,
+      defaultSelectedMenuItemId = R.id.action_search,
       menuItems = bottomNavViewButtons()
     )
   }
@@ -192,20 +195,11 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
       attachedToToolbar = true
     }
 
-    coroutineScope.launch {
-      globalUiStateHolder.toolbar.toolbarVisibilityStateFlow()
-        .onEach { toolbarVisible ->
-          if (!isBottomNavViewEnabled) {
-            completelyDisableBottomNavigationView()
-            return@onEach
-          }
-
-          onCollapseAnimationInternal(
-            collapse = !toolbarVisible,
-            isFromToolbarCallbacks = true
-          )
-        }
-        .collect()
+    // Toolbar-visibility-driven auto-hide has been dropped in v1.3.44 (the
+    // ToolbarGlobalState no longer exposes a per-visibility flow). The bar
+    // still hides via the scroll flow below; this branch is a no-op.
+    if (!isBottomNavViewEnabled) {
+      completelyDisableBottomNavigationView()
     }
 
     coroutineScope.launch {
@@ -283,8 +277,8 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
 
     animate()
       .alpha(newAlpha)
-      .setDuration(KurobaToolbarView.ToolbarAnimationDurationMs)
-      .setInterpolator(KurobaToolbarView.ToolbarAnimationInterpolator)
+      .setDuration(ToolbarAnimationDurationMs)
+      .setInterpolator(ToolbarAnimationInterpolator)
       .setListener(object : SimpleAnimatorListener() {
         override fun onAnimationEnd(animation: Animator) {
           animating = false
@@ -315,8 +309,8 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
 
     animate()
       .alpha(newAlpha)
-      .setDuration(KurobaToolbarView.ToolbarAnimationDurationMs)
-      .setInterpolator(KurobaToolbarView.ToolbarAnimationInterpolator)
+      .setDuration(ToolbarAnimationDurationMs)
+      .setInterpolator(ToolbarAnimationInterpolator)
       .start()
   }
 
@@ -342,7 +336,7 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
     }
 
     fun bottomNavViewButtons(): List<KurobaComposeIconPanel.MenuItem> {
-      val bottomNavViewButtons = PersistableChanState.reorderableBottomNavViewButtons.get()
+      val bottomNavViewButtons = ReorderableBottomNavViewButtons()
 
       return bottomNavViewButtons.bottomNavViewButtons().map { bottomNavViewButton ->
         return@map when (bottomNavViewButton) {
@@ -364,10 +358,10 @@ class KurobaBottomNavigationView @JvmOverloads constructor(
               iconId = R.drawable.ic_bookmark_white_24dp
             )
           }
-          BottomNavViewButton.Browse -> {
+          BottomNavViewButton.MyPosts -> {
             KurobaComposeIconPanel.MenuItem(
-              id = R.id.action_browse,
-              iconId = R.drawable.ic_baseline_laptop
+              id = R.id.action_posts,
+              iconId = R.drawable.ic_baseline_posts
             )
           }
           BottomNavViewButton.Settings -> {
