@@ -44,6 +44,7 @@ import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager
 import com.github.k1rakishou.model.di.ModelComponentInjector
+import com.github.k1rakishou.deprecated.ChanSettingsDeprecated
 import com.github.k1rakishou.v2.ApplicationSettingsParameters
 import com.github.k1rakishou.v2.KurobaSettings
 import com.github.k1rakishou.v2.NonBackupableSettingsParameters
@@ -198,6 +199,14 @@ class Chan : Application(), ActivityLifecycleCallbacks {
     super.onCreate()
 
     startTime = SystemClock.elapsedRealtime()
+
+    // The legacy ChanSettingsDeprecated statics are usually populated inside
+    // KurobaSettingsMigrationHelper, but only for installs that have a pre-existing
+    // SharedPreferences file to migrate. On a fresh install (e.g. the .bottomnav
+    // variant) the migration path is skipped, leaving the deprecated statics null.
+    // The restored KurobaBottomNavigationView reads ChanSettingsDeprecated at view
+    // inflation, so it must be initialized here to avoid an NPE.
+    ChanSettingsDeprecated.init()
 
     val start = System.currentTimeMillis()
     onCreateInternal()
