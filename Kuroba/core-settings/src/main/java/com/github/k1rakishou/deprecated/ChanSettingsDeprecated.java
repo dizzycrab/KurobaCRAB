@@ -2,6 +2,7 @@ package com.github.k1rakishou.deprecated;
 
 import static com.github.k1rakishou.common.AndroidUtils.getAppMainPreferences;
 
+import com.github.k1rakishou.deprecated.prefs.BooleanSetting;
 import com.github.k1rakishou.deprecated.prefs.OptionsSetting;
 
 // TODO: remove me in 1 year
@@ -222,6 +223,7 @@ public class ChanSettingsDeprecated {
   public static OptionsSetting<BookmarksSortOrder> bookmarksSortOrder;
   public static OptionsSetting<ImageGestureActionType> mediaViewerTopGestureAction;
   public static OptionsSetting<ImageGestureActionType> mediaViewerBottomGestureAction;
+  public static BooleanSetting bottomNavigationViewEnabled;
 
   private static void initInternal() {
     SettingProvider provider = new SharedPreferencesSettingProvider(getAppMainPreferences());
@@ -241,6 +243,34 @@ public class ChanSettingsDeprecated {
     bookmarksSortOrder = new OptionsSetting<>(provider, "bookmarks_comparator", BookmarksSortOrder.class, BookmarksSortOrder.defaultOrder());
     mediaViewerTopGestureAction = new OptionsSetting<>(provider, "media_viewer_top_gesture_action", ImageGestureActionType.class, ImageGestureActionType.CloseImage);
     mediaViewerBottomGestureAction = new OptionsSetting<>(provider, "media_viewer_bottom_gesture_action", ImageGestureActionType.class, ImageGestureActionType.SaveImage);
+    bottomNavigationViewEnabled = new BooleanSetting(provider, "bottom_navigation_mode", true);
+  }
+
+  // Helpers restored to support the reintroduced bottom navigation bar.
+  public static LayoutMode getCurrentLayoutMode() {
+    return layoutMode.get();
+  }
+
+  public static boolean isSplitLayoutMode() {
+    return getCurrentLayoutMode() == LayoutMode.SPLIT;
+  }
+
+  public static boolean isSlideLayoutMode() {
+    return getCurrentLayoutMode() == LayoutMode.SLIDE;
+  }
+
+  public static boolean isNavigationViewEnabled() {
+    if (isSplitLayoutMode()) {
+      return false;
+    }
+    return bottomNavigationViewEnabled.get();
+  }
+
+  public static boolean isBottomNavigationPresent() {
+    if (isSplitLayoutMode()) {
+      return false;
+    }
+    return bottomNavigationViewEnabled.get();
   }
 
 }
